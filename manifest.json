@@ -1,0 +1,19 @@
+{
+    "manifest_version": 2,
+    "name": "ReadIt!!",
+    "version": "0.1",
+    "content_scripts": [{
+        "matches": ["*://*/*"],
+        "js": [
+        	"js/responsivevoice.js",
+        	"js/content_scripts.js"
+        ]
+    }],
+    "background": {
+        "scripts": [
+            "js/background.js"
+        ],
+        "persistent": false
+    },
+    "browser_action": {}
+}
