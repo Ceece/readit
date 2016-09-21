@@ -1,8 +1,21 @@
 var options = {};
 
-chrome.storage.sync.get(function(items) {
-    options = items;
-});
+var createContextMenus = function() {
+    chrome.contextMenus.removeAll(function() {
+        chrome.contextMenus.create({
+            id: "readit",
+            title: `ReadIt!! (${options.defaultVoice})`,
+            contexts: ["selection"]
+        });
+    });
+};
+
+var getOptions = function() {
+    chrome.storage.sync.get(function(items) {
+        options = items;
+    });
+    createContextMenus();
+}
 
 responsiveVoice.AddEventListener("OnLoad", function() {
 
@@ -12,14 +25,12 @@ responsiveVoice.AddEventListener("OnLoad", function() {
         });
     });
 
-    chrome.contextMenus.create({
-        id: "readit",
-        title: "ReadIt!!",
-        contexts: ["selection"]
-    });
-
     chrome.contextMenus.onClicked.addListener(function(info, tab) {
         responsiveVoice.speak(info.selectionText, options.defaultVoice);
     });
+
+    chrome.storage.onChanged.addListener(getOptions);
+
+    getOptions();
 
 });
