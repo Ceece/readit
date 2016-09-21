@@ -1,6 +1,8 @@
-var options = {};
+var options = {
+    defaultVoice: 'UK English Female'
+};
 
-var createContextMenus = function() {
+var updateContextMenus = function() {
     chrome.contextMenus.removeAll(function() {
         chrome.contextMenus.create({
             id: "readit",
@@ -10,11 +12,11 @@ var createContextMenus = function() {
     });
 };
 
-var getOptions = function() {
-    chrome.storage.sync.get(function(items) {
+var updateOptions = function() {
+    chrome.storage.sync.get(options, function(items) {
         options = items;
     });
-    createContextMenus();
+    updateContextMenus();
 }
 
 responsiveVoice.AddEventListener("OnLoad", function() {
@@ -29,8 +31,8 @@ responsiveVoice.AddEventListener("OnLoad", function() {
         responsiveVoice.speak(info.selectionText, options.defaultVoice);
     });
 
-    chrome.storage.onChanged.addListener(getOptions);
+    chrome.storage.onChanged.addListener(updateOptions);
 
-    getOptions();
+    updateOptions();
 
 });
