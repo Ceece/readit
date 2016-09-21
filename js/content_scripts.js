@@ -1,5 +1,5 @@
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.action == 'speakit') {
+    if (request.action == 'readit') {
         sendResponse({
             selection: window.getSelection().toString()
         });

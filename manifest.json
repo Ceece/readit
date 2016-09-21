@@ -15,7 +15,7 @@
         ],
         "persistent": false
     },
-    "permissions": ["storage", "tts"],
+    "permissions": ["storage", "contextMenus"],
     "options_ui": {
         "page": "options.html",
         "chrome_style": true
