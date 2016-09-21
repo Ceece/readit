@@ -1,6 +1,7 @@
-responsiveVoice.AddEventListener("OnLoad", function() {
-    chrome.runtime.onMessage.addListener(function(message) {
-        if (message.action == 'speakit')
-            responsiveVoice.speak(window.getSelection().toString());
-    });
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (request.action == 'speakit') {
+        sendResponse({
+            selection: window.getSelection().toString()
+        });
+    }
 });
