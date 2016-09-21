@@ -2,6 +2,12 @@
     "manifest_version": 2,
     "name": "ReadIt!!",
     "version": "0.1",
+    "icons": {
+        "16": "img/16.png",
+        "24": "img/24.png",
+        "32": "img/32.png",
+        "64": "img/64.png"
+    },
     "content_scripts": [{
         "matches": ["*://*/*"],
         "js": [
