@@ -28,7 +28,20 @@ var beautifyText = function(text) {
 
 var tts = function(text, voice) {
     voice = voice || options.defaultVoice;
-    responsiveVoice.speak(text, voice);
+    responsiveVoice.speak(beautifyText(text), voice, {onstart: ttsOnStart, onend: ttsOnStop});
+}
+
+var ttsOnStart = function() {
+    chrome.browserAction.setIcon({ path: 'img/stop.png' })
+}
+
+var ttsOnStop = function() {
+    chrome.browserAction.setIcon({ path: 'img/64.png' })
+}
+
+var ttsCancel = function() {
+    responsiveVoice.cancel();
+    ttsOnStop();
 }
 
 var openOptions = function() {
@@ -39,7 +52,10 @@ responsiveVoice.AddEventListener("OnLoad", function() {
 
     chrome.browserAction.onClicked.addListener(function(tab) {
         chrome.tabs.sendMessage(tab.id, {action: "readit"}, function(response) {
-            tts(response.selection)
+            if(responsiveVoice.isPlaying())
+                ttsCancel();
+            else
+                tts(response.selection);
         });
     });
 
