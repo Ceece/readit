@@ -31,6 +31,10 @@ var tts = function(text, voice) {
     responsiveVoice.speak(text, voice);
 }
 
+var openOptions = function() {
+    chrome.tabs.create({ url: 'chrome://extensions/?options=' + chrome.runtime.id });
+}
+
 responsiveVoice.AddEventListener("OnLoad", function() {
 
     chrome.browserAction.onClicked.addListener(function(tab) {
@@ -46,4 +50,21 @@ responsiveVoice.AddEventListener("OnLoad", function() {
     chrome.storage.onChanged.addListener(updateOptions);
     chrome.runtime.onInstalled.addListener(updateOptions);
 
+});
+
+chrome.runtime.onInstalled.addListener(function(details) {
+    if(details.reason == "install") {
+        chrome.notifications.create('onInstalled', {
+            type: 'basic',
+            iconUrl: 'img/64.png',
+            title: 'Thank you for install Readit!!',
+            message: 'Please set default voice in options or click here'
+        });
+    }
+});
+
+chrome.notifications.onClicked.addListener(function(notificationId) {
+    if (notificationId == 'onInstalled') {
+        chrome.notifications.clear(notificationId, openOptions);
+    }
 });

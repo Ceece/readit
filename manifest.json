@@ -21,7 +21,7 @@
         ],
         "persistent": false
     },
-    "permissions": ["storage", "contextMenus"],
+    "permissions": ["storage", "contextMenus", "notifications"],
     "options_ui": {
         "page": "options.html",
         "chrome_style": true
