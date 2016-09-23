@@ -12,11 +12,18 @@ var updateContextMenus = function() {
     });
 };
 
-var updateOptions = function() {
-    chrome.storage.sync.get(options, function(items) {
-        options = items;
-    });
-    updateContextMenus();
+var updateOptions = function(changed) {
+
+    var setOptions = function(params) {
+        options = params;
+        updateContextMenus();
+    };
+
+    if (changed !== undefined) {
+        setOptions(changed);
+    else
+        chrome.storage.sync.get(options, setOptions);
+
 }
 
 var beautifyText = function(text) {
