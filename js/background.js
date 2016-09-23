@@ -48,7 +48,7 @@ responsiveVoice.AddEventListener("OnLoad", function() {
     });
 
     chrome.storage.onChanged.addListener(updateOptions);
-    chrome.runtime.onInstalled.addListener(updateOptions);
+    updateOptions();
 
 });
 
