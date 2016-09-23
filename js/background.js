@@ -19,20 +19,31 @@ var updateOptions = function() {
     updateContextMenus();
 }
 
+var beautifyText = function(text) {
+    var pattern = /(\d+),(\d{3})/;
+    while(text.match(pattern))
+        text = text.replace(pattern, "$1$2");
+    return text;
+}
+
+var tts = function(text, voice) {
+    voice = voice || options.defaultVoice;
+    responsiveVoice.speak(text, voice);
+}
+
 responsiveVoice.AddEventListener("OnLoad", function() {
 
     chrome.browserAction.onClicked.addListener(function(tab) {
         chrome.tabs.sendMessage(tab.id, {action: "readit"}, function(response) {
-            responsiveVoice.speak(response.selection, options.defaultVoice);
+            tts(response.selection)
         });
     });
 
     chrome.contextMenus.onClicked.addListener(function(info, tab) {
-        responsiveVoice.speak(info.selectionText, options.defaultVoice);
+        tts(info.selectionText)
     });
 
     chrome.storage.onChanged.addListener(updateOptions);
-
-    updateOptions();
+    chrome.runtime.onInstalled.addListener(updateOptions);
 
 });
