@@ -1,8 +1,29 @@
-(function(){
+(function(responsiveVoice){
 
     var options = {
         defaultVoice: 'UK English Female'
     };
+
+    responsiveVoice.getPartOfSentence = function(sentence, max) {
+
+        var regex = /[เแไใโ]/, part = '', match, index, word;
+
+        while (match = sentence.substr(1).match(regex)) {
+            
+            index = match.index + 1;
+            word = sentence.substr(0, index)
+            if (part.length + word.length <= max) {
+                part += word;
+                sentence = sentence.substr(index)
+            } else {
+                break;
+            }
+
+        }
+
+        return part
+
+    }
 
     var updateContextMenus = function() {
         chrome.contextMenus.removeAll(function() {
@@ -94,4 +115,4 @@
         }
     });
     
-})();
+})(responsiveVoice);
