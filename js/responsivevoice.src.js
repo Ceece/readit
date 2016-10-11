@@ -700,6 +700,9 @@ if (typeof responsiveVoice != 'undefined') {
                         if (part.length == 0 && self.getPartOfSentence)
                             part = self.getPartOfSentence(tmptxt, self.CHARACTER_LIMIT)
 
+                        if (part.length == 0)
+                            throw new Error(`Cannot split sentence: "${tmptxt}"`);
+
                     } else {
 
                         part = tmptxt.substr(0, p + 1);
