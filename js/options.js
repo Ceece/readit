@@ -1,9 +1,18 @@
-var restoreOptions = function() {
+Array.prototype.unique = function(a){
+    return function(){ return this.filter(a) }
+}(function(a,b,c){ return c.indexOf(a,b+1) < 0 });
 
+var restoreOptions = function() {
     chrome.tts.getVoices(function(voices) {
+        var langs = [];
         voices.forEach(function(voice) {
-            document.getElementById('voice').innerHTML += `<option>${voice.lang}</option>`;
+            langs.push(voice.lang);
+        });
+        langs.sort();
+        langs = langs.unique().map(function(lang) {
+            return `<option>${lang}</option>`;
         })
+        document.getElementById('voice').innerHTML = langs.join('');
     });
 
     chrome.storage.sync.get(function(items) {
