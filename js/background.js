@@ -58,6 +58,9 @@ var openOptions = function() {
     chrome.tabs.create({ url: 'chrome://extensions/?options=' + chrome.runtime.id });
 }
 
+updateOptions();
+chrome.storage.onChanged.addListener(updateOptions);
+
 chrome.browserAction.onClicked.addListener(function(tab) {
     chrome.tabs.sendMessage(tab.id, { action: "browserAction" }, function(response) {
         chrome.tts.isSpeaking(function(isSpeaking) {
@@ -75,12 +78,14 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
     tts(info.selectionText)
 });
 
-chrome.storage.onChanged.addListener(updateOptions);
-updateOptions();
-
-
 chrome.runtime.onInstalled.addListener(function(details) {
     if(details.reason == "install") {
+        chrome.storage.sync.get(function(items) {
+            if (items.defaultVoice) {
+                openOptions();
+            }
+        });
+
         chrome.notifications.create('onInstalled', {
             type: 'basic',
             iconUrl: 'img/64.png',
