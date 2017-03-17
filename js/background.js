@@ -24,22 +24,34 @@ var updateOptions = function(changed) {
     }
 }
 
-var beautifyText = function(text) {
+var formatText = function(text) {
     var pattern = /(\d+),(\d{3})/;
     while(text.match(pattern))
         text = text.replace(pattern, "$1$2");
     return text;
 }
 
-var tts = function(text, voice) {
+var ttsSpeak = function(text, voice) {
+    text = formatText(text);
     voice = voice || options.defaultVoice;
-    chrome.tts.speak(beautifyText(text), {
+    chrome.tts.speak(text, {
         lang: voice,
         onEvent: function(event) {
             switch(event.type) {
-                case 'start': ttsOnStart(); break;
-                case 'end': ttsOnStop(); break;
+                case 'start':
+                    ttsOnStart();
+                    break;
+                case 'error':
+                    alert(event.errorMessage);
+                case 'end':
+                    ttsOnStop();
+                    break;
             }
+        }
+    }, function() {
+        if (chrome.runtime.lastError) {
+            alert(chrome.runtime.lastError.message);
+            ttsOnStop();
         }
     });
 }
@@ -49,7 +61,14 @@ var ttsOnStart = function() {
 }
 
 var ttsOnStop = function() {
-    chrome.browserAction.setIcon({ path: 'img/64.png' })
+    chrome.browserAction.setIcon({
+        path: {
+            "16": "img/16.png",
+            "24": "img/24.png",
+            "32": "img/32.png",
+            "64": "img/64.png"
+        }
+    });
 }
 
 var openOptions = function() {
@@ -66,14 +85,14 @@ chrome.browserAction.onClicked.addListener(function(tab) {
                 ttsOnStop();
                 chrome.tts.stop();
             } else {
-                tts(response.selection);
+                ttsSpeak(response.selection);
             }
         })
     });
 });
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
-    tts(info.selectionText);
+    ttsSpeak(info.selectionText);
 });
 
 chrome.runtime.onInstalled.addListener(function(details) {
