@@ -13,17 +13,15 @@ var updateContextMenus = function() {
 };
 
 var updateOptions = function(changed) {
-
-    var setOptions = function(params) {
-        options = params;
+    if (changed !== undefined) {
+        options.defaultVoice = changed.defaultVoice.newValue;
         updateContextMenus();
-    };
-
-    if (changed !== undefined)
-        setOptions(changed);
-    else
-        chrome.storage.sync.get(options, setOptions);
-
+    } else {
+        chrome.storage.sync.get(function(items) {
+            options.defaultVoice = items.defaultVoice;
+            updateContextMenus();
+        });
+    }
 }
 
 var beautifyText = function(text) {
@@ -75,7 +73,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 });
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
-    tts(info.selectionText)
+    tts(info.selectionText);
 });
 
 chrome.runtime.onInstalled.addListener(function(details) {
