@@ -1,2 +1,2 @@
 # readit
-TTS Chrome Extenstion by responsivevoice
+TTS Chrome Extenstion

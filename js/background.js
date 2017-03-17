@@ -1,118 +1,97 @@
-(function(responsiveVoice){
+var options = {
+    defaultVoice: 'en-US'
+};
 
-    var options = {
-        defaultVoice: 'UK English Female'
+var updateContextMenus = function() {
+    chrome.contextMenus.removeAll(function() {
+        chrome.contextMenus.create({
+            id: "readit",
+            title: `ReadIt!! (${options.defaultVoice})`,
+            contexts: ["selection"]
+        });
+    });
+};
+
+var updateOptions = function(changed) {
+
+    var setOptions = function(params) {
+        options = params;
+        updateContextMenus();
     };
 
-    responsiveVoice.getPartOfSentence = function(sentence, max) {
+    if (changed !== undefined)
+        setOptions(changed);
+    else
+        chrome.storage.sync.get(options, setOptions);
 
-        var regex = /[เแไใโ]/, part = '', match, index, word;
+}
 
-        while (match = sentence.substr(1).match(regex)) {
-            
-            index = match.index + 1;
-            word = sentence.substr(0, index)
-            if (part.length + word.length <= max) {
-                part += word;
-                sentence = sentence.substr(index)
-            } else {
-                break;
+var beautifyText = function(text) {
+    var pattern = /(\d+),(\d{3})/;
+    while(text.match(pattern))
+        text = text.replace(pattern, "$1$2");
+    return text;
+}
+
+var tts = function(text, voice) {
+    voice = voice || options.defaultVoice;
+    chrome.tts.speak(beautifyText(text), {
+        lang: voice,
+        onEvent: function(event) {
+            switch(event.type) {
+                case 'start': ttsOnStart(); break;
+                case 'end': ttsOnStop(); break;
             }
-
-        }
-
-        return part
-
-    }
-
-    var updateContextMenus = function() {
-        chrome.contextMenus.removeAll(function() {
-            chrome.contextMenus.create({
-                id: "readit",
-                title: `ReadIt!! (${options.defaultVoice})`,
-                contexts: ["selection"]
-            });
-        });
-    };
-
-    var updateOptions = function(changed) {
-
-        var setOptions = function(params) {
-            options = params;
-            updateContextMenus();
-        };
-
-        if (changed !== undefined)
-            setOptions(changed);
-        else
-            chrome.storage.sync.get(options, setOptions);
-
-    }
-
-    var beautifyText = function(text) {
-        var pattern = /(\d+),(\d{3})/;
-        while(text.match(pattern))
-            text = text.replace(pattern, "$1$2");
-        return text;
-    }
-
-    var tts = function(text, voice) {
-        voice = voice || options.defaultVoice;
-        responsiveVoice.speak(beautifyText(text), voice, {onstart: ttsOnStart, onend: ttsOnStop});
-    }
-
-    var ttsOnStart = function() {
-        chrome.browserAction.setIcon({ path: 'img/stop.png' })
-    }
-
-    var ttsOnStop = function() {
-        chrome.browserAction.setIcon({ path: 'img/64.png' })
-    }
-
-    var ttsCancel = function() {
-        responsiveVoice.cancel();
-        ttsOnStop();
-    }
-
-    var openOptions = function() {
-        chrome.tabs.create({ url: 'chrome://extensions/?options=' + chrome.runtime.id });
-    }
-
-    responsiveVoice.AddEventListener("OnLoad", function() {
-
-        chrome.browserAction.onClicked.addListener(function(tab) {
-            chrome.tabs.sendMessage(tab.id, {action: "readit"}, function(response) {
-                if(responsiveVoice.isPlaying())
-                    ttsCancel();
-                else
-                    tts(response.selection);
-            });
-        });
-
-        chrome.contextMenus.onClicked.addListener(function(info, tab) {
-            tts(info.selectionText)
-        });
-
-        chrome.storage.onChanged.addListener(updateOptions);
-        updateOptions();
-
-    });
-
-    chrome.runtime.onInstalled.addListener(function(details) {
-        if(details.reason == "install") {
-            chrome.notifications.create('onInstalled', {
-                type: 'basic',
-                iconUrl: 'img/64.png',
-                title: 'Thank you for install Readit!!',
-                message: 'Please set default voice in options or click here'
-            });
         }
     });
+}
 
-    chrome.notifications.onClicked.addListener(function(notificationId) {
-        if (notificationId == 'onInstalled') {
-            chrome.notifications.clear(notificationId, openOptions);
-        }
+var ttsOnStart = function() {
+    chrome.browserAction.setIcon({ path: 'img/stop.png' })
+}
+
+var ttsOnStop = function() {
+    chrome.browserAction.setIcon({ path: 'img/64.png' })
+}
+
+var openOptions = function() {
+    chrome.tabs.create({ url: 'chrome://extensions/?options=' + chrome.runtime.id });
+}
+
+chrome.browserAction.onClicked.addListener(function(tab) {
+    chrome.tabs.sendMessage(tab.id, { action: "browserAction" }, function(response) {
+        chrome.tts.isSpeaking(function(isSpeaking) {
+            if(isSpeaking) {
+                ttsOnStop();
+                chrome.tts.stop();
+            } else {
+                tts(response.selection);
+            }
+        })
     });
-    
-})(responsiveVoice);
+});
+
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
+    tts(info.selectionText)
+});
+
+chrome.storage.onChanged.addListener(updateOptions);
+updateOptions();
+
+
+chrome.runtime.onInstalled.addListener(function(details) {
+    if(details.reason == "install") {
+        chrome.notifications.create('onInstalled', {
+            type: 'basic',
+            iconUrl: 'img/64.png',
+            title: 'Thank you for install Readit!!',
+            message: 'Please set default voice in options or click here'
+        });
+    }
+});
+
+chrome.notifications.onClicked.addListener(function(notificationId) {
+    if (notificationId == 'onInstalled') {
+        chrome.notifications.clear(notificationId, openOptions);
+    }
+});

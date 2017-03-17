@@ -1,14 +1,13 @@
 var restoreOptions = function() {
-    responsiveVoice.AddEventListener("OnLoad", function() {
 
-        responsiveVoice.getVoices().forEach(function(voice) {
-            document.getElementById('voice').innerHTML += `<option>${voice.name}</option>`;
-        });
+    chrome.tts.getVoices(function(voices) {
+        voices.forEach(function(voice) {
+            document.getElementById('voice').innerHTML += `<option>${voice.lang}</option>`;
+        })
+    });
 
-        chrome.storage.sync.get(function(items) {
-            document.getElementById('voice').value = items.defaultVoice;
-        });
-
+    chrome.storage.sync.get(function(items) {
+        document.getElementById('voice').value = items.defaultVoice;
     });
 }
 

@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "ReadIt!!",
-    "version": "0.1.6",
+    "version": "0.2.0",
     "description": "Lazy to read? ReadIt!! will read it for you. It's a Text-to-speech Chrome extension by ResponsiveVoice.",
     "icons": {
         "16": "img/16.png",
@@ -17,11 +17,10 @@
     }],
     "background": {
         "scripts": [
-            "js/responsivevoice.src.js",
             "js/background.js"
         ]
     },
-    "permissions": ["storage", "contextMenus", "notifications"],
+    "permissions": ["storage", "contextMenus", "notifications", "tts"],
     "options_ui": {
         "page": "options.html",
         "chrome_style": true
